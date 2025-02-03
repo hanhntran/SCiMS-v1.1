@@ -104,8 +104,9 @@ sample4		D
 ```
 
 ## Example run
-Example files can be found in the ```test_data``` folder
+Example files can be found in the ```test_data``` folder.
 
+Change path to the ```test_data``` folder and run the following command:
 ```
 scims --scaffolds GRCh38_scaffolds.txt --master_file test_master_file.txt \
       --metadata metadata_file.txt \
