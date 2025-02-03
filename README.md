@@ -1,14 +1,31 @@
-# `SCiMS` is a tool for identifying the sex of a host organism based on the alignment of metagenomic sequences. 
+# `SCiMS` : Sex Calling in Metagenomic Sequencing
+The goal of this software package is to provide an intuitive and accessible tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.  
 
-----
-## Installation 
+## Overview
 
-`SCiMS` can be easily installed with the pip package manager
+Metagenomic sequencing data often contains a mix of host and non-host sequences. SCiMS salvages the reads mapping statistics that align to the host genome and uses them to identify the sex of the host organism. SCiMS leverages robust statistical methods to accurately determine the sex of the host, providing host sex information for downstream analyses.
+
+## Requirements
+
+- Python 3.9+
+- numpy, pandas, scipy, setuptools
+- (Optional) samtools for generating `.idxstats` files 
+
+## Installation instructions
+
+The simpliest installation works through the [conda](https://docs.conda.io/en/latest/miniconda.html) installer that can maintain different versions of Python on the same machine. 
 
 ```
-pip3 install git+https://github.com/hanhntran/SCiMS-v1.1
+# Create a new conda environment with Python 3.9
+conda create -n scims python=3.9
+
+# Activate the environment
+conda activate scims
+
+# Install SCiMS
+pip install git+https://github.com/hanhntran/SCiMS-v1.1
 ```
- 
+
 To confirm that the instillation was successful, run:
 ```
 scims -h
@@ -36,9 +53,9 @@ options:
   --training_data TRAINING_DATA     If you have a training dataset, you can specify the path to the training data here
 ```
 
+## Required input files
 
-## Input Files
-### Scaffolds.txt
+### `scaffolds.txt`
 Since most assemblies include scaffolds representing other DNA than simply genomic (ex. mitochondrial), it is necessary to define what scaffolds we are interested in using for our analysis. This can be specified with a ```scaffolds.txt``` file. This is a single-column text file where each row is a scaffold ID. Here is an example, 
 ```
 NC_000001.11
@@ -52,7 +69,7 @@ NC_000008.11
 ...
 ``` 
 
-### .idxstats files and master file
+### `.idxstats files`
 A .idxstats file can easily be created with samtools. If you have a .bam file of interest, fun the following commands to generate the .idxstats file:
 
 ```shell
@@ -62,9 +79,10 @@ samtools index <bam_file>
 ```shell
 samtools idxstats <bam_file> > <prefix>.idxstats
 ```
+### `master_file.txt`
 To run SCiMS, you will need to create a master file. This file should contain the paths to the .idxstats files for each sample. 
 
-Example of a master file:
+Example of a master_file.txt:
 ```
 path/to/idxstats/file/sample1.idxstats
 path/to/idxstats/file/sample2.idxstats
@@ -72,7 +90,7 @@ path/to/idxstats/file/sample3.idxstats
 path/to/idxstats/file/sample4.idxstats
 ```
 
-### Metadata file
+### `metadata_file.txt`
 A metadata file is required to run SCiMS. This file should contain at least one columns, `sample-id`. The `sample-id` column should contain the sample IDs that are present in the .idxstats file. 
 
 Example:
@@ -94,10 +112,11 @@ scims --scaffolds GRCh38_scaffolds.txt --master_file test_master_file.txt \
       --system XY \
       --homogametic_id NC_000023.11 \
       --heterogametic_id NC_000024.10 \
+      --id_column sample-id \
       --output test_output.txt
 ```
 
-output:
+Output:
 ```
 =================================================
 
