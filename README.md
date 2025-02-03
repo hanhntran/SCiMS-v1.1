@@ -6,7 +6,7 @@
 `SCiMS` can be easily installed with the pip package manager
 
 ```
-pip3 install git+https://github.com/hanhntran/SCiMS_v2
+pip3 install git+https://github.com/hanhntran/SCiMS-v1.1
 ```
  
 To confirm that the instillation was successful, run:
