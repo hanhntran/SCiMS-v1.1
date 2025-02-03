@@ -1,4 +1,4 @@
-#### `SCiMS` is a tool for identifying the sex of a host organism based on the alignment of metagenomic sequences. 
+# `SCiMS` is a tool for identifying the sex of a host organism based on the alignment of metagenomic sequences. 
 
 ----
 ## Installation 
