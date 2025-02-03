@@ -1,0 +1,2 @@
+include scims/data/training_data_hmp_1000x_normalizedXY.txt
+recursive-include tests *
