@@ -124,6 +124,7 @@ Output:
     _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
         _|  _|         _|    _|      _|       _|  
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
+    
 =================================================
 SCiMS: Sex Calling in Metagenomic Sequencing
 2025-02-04 12:30:14,018 - INFO - Using 'Run' as the sample ID column.
