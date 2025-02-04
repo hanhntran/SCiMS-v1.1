@@ -119,16 +119,15 @@ Output:
 ```
 =================================================
 
-                                                  
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
     _|      _|         _|    _|_|  _|_|   _|        
     _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
         _|  _|         _|    _|      _|       _|  
-    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_| 
-
+    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
 =================================================
-INFO:root:Training data is loaded successfully
-INFO:root:Results are saved in test_output.txt
+SCiMS: Sex Calling in Metagenomic Sequencing
+2025-02-04 12:30:14,018 - INFO - Using 'Run' as the sample ID column.
+2025-02-04 12:30:55,747 - INFO - Results written to test_output.txt
 ```
 
 
