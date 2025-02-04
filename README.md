@@ -35,23 +35,21 @@ scims -h
 `SCiMS` can be used on any alignment data, regardless of the platform used for sequencing or the aligner that generated the alignment file. 
 
 ```
-usage: scims [-h] [--master_file IDXTATS] [--scaffolds SCAFFOLD_IDS_FILE] [--metadata METADATA_FILE]
-                   [--heterogametic_id X_ID] [--homogametic_id Y_ID] [--system SYSTEM] 
-                   [--output OUTPUT_FILE] [optional --threshold THRESHOLD] [optional --training_data TRAINING_DATA]
-
-options:
-  -h, --help                        Show this help message and exit
-  --master_file IDXTATS             Path to the master file containing paths to the .idxstats files for each sample
-  --scaffolds SCAFFOLD_IDS_FILE     Path to the scaffolds.txt file containing the scaffolds of interest
-  --metadata METADATA_FILE          Path to the metadata file containing the sample IDs 
-  --heterogametic_id X_ID           The ID of the heterogametic sex chromosome
-  --homogametic_id Y_ID             The ID of the homogametic sex chromosome
-  --system SYSTEM                   The sex determination system (XY or ZW)
-  --output OUTPUT_FILE              Path to the output file
-  --threshold THRESHOLD             The threshold for the sex calling algorithm (default: 0.95)
-  --id_column ID_COLUMN            The column name of the sample ID in the metadata file
-  --training_data TRAINING_DATA     If you have a training dataset, you can specify the path to the training data here
+scims --master_file <master_file.txt> --scaffolds <scaffolds.txt> --metadata <metadata_file.txt> --system XY --homogametic_id chrom_id --heterogametic_id chrom_id --id_column sample-id --output <output_file.txt>
 ```
+| Option             | Description                                                                          |
+|--------------------|----------------------------------------------------------------------------------|
+| -h, --help         | Show this help message and exit                                                      |
+| --master_file      | Path to the master file containing paths to the .idxstats files for each sample         |
+| --scaffolds        | Path to the scaffolds.txt file containing the scaffolds of interest                     |
+| --metadata         | Path to the metadata file containing the sample IDs                                   |
+| --heterogametic_id | The ID of the heterogametic sex chromosome                                             |
+| --homogametic_id   | The ID of the homogametic sex chromosome                                               |
+| --system           | The sex determination system (XY or ZW)                                                |
+| --output           | Path to the output file                                                                |
+| --threshold        | The threshold for the sex calling algorithm (default: 0.95)                             |
+| --id_column        | The column name of the sample ID in the metadata file                                  |
+| --training_data    | If you have a training dataset, you can specify the path to the training data here        |
 
 ## Required input files
 
