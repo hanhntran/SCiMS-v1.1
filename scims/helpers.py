@@ -68,13 +68,31 @@ def compute_coverage_ratio_rx(idxstats: pd.DataFrame, autosome_indices: list, x_
     return Rx
 
 
-def load_training_data(training_path: str) -> pd.DataFrame:
+def load_training_data(training_path: str = None) -> pd.DataFrame:
     """
     Reads training data from a tab-delimited file.
     Expects columns like 'actual_sex_xy' and 'actual_sex_zw', among others.
+
+    If no training_path is provided or if the provided path matches the default
+    filename and is not found on disk, the default training data bundled with the
+    package is used.
     """
-    if not os.path.exists(training_path):
-        raise FileNotFoundError(f"Training data file not found: {training_path}")
-    data_path = pkg_resources.resource_filename('scims', 'data/training_data_hmp_1000x_normalizedXY.txt')
-    training_data = pd.read_csv(data_path, sep='\t')
+    default_filename = "training_data_hmp_1000x_normalizedXY.txt"
+    
+    # Use default if no training path is provided
+    if training_path is None or training_path == default_filename:
+        training_path = pkg_resources.resource_filename('scims', f"data/{default_filename}")
+    else:
+        # If a training_path was provided but the file doesn't exist locally,
+        # try to look for it in the package data.
+        if not os.path.exists(training_path):
+            pkg_data_path = pkg_resources.resource_filename('scims', f"data/{training_path}")
+            if os.path.exists(pkg_data_path):
+                training_path = pkg_data_path
+            else:
+                raise FileNotFoundError(f"Training data file not found: {training_path}")
+    
+    training_data = pd.read_csv(training_path, sep='\t')
     return training_data
+
+
