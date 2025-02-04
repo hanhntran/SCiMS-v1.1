@@ -60,6 +60,16 @@ def main():
     parser.add_argument('--training_data', dest="training_data", help='Path to the training data file if available. SCiMS will use the default training data if not provided.', default="training_data_hmp_1000x_normalizedXY.txt")
     args = parser.parse_args()
 
+    print("=================================================")
+    print("""
+    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
+    _|      _|         _|    _|_|  _|_|   _|        
+    _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
+        _|  _|         _|    _|      _|       _|  
+    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    """)
+    print("=================================================")
+    print("SCiMS: Sex Calling in Metagenomic Sequencing")
+
     # 1. Load metadata
     try:
         metadata = read_metadata(args.metadata)
