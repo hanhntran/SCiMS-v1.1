@@ -90,7 +90,10 @@ def main():
     idxstats_files = read_master_file(args.master_file)
 
     # 3. Load training data
-    training_data = load_training_data(args.training_data)
+    if args.training_data:
+        training_data = load_training_data(args.training_data)
+    else:
+        training_data = load_training_data()
 
     # Extract XY/ZW coverage ratio columns for 'male' and 'female'
     if args.system == 'XY':
