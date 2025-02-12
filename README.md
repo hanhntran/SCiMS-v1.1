@@ -1,4 +1,4 @@
-# `SCiMS` : Sex Calling in Metagenomic Sequencing
+# `SCiMS` : Sex Calling in Metagenomic Sequences
 The goal of this software package is to provide an intuitive and accessible tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.  
 
 ## Overview
@@ -38,10 +38,10 @@ scims -h
 scims --master_file <master_file.txt> \
         --scaffolds <scaffolds.txt> \
         --metadata <metadata_file.txt> \
-        --system XY \
-        --homogametic_id chrom_id \
-        --heterogametic_id chrom_id \
-        --id_column sample-id \
+        --system <XY or ZW> \
+        --homogametic_id <chrom_id> \
+        --heterogametic_id <chrom_id> \
+        --id_column <sample-id> \
         --output <output_file.txt>
 ```
 | Option             | Description                                                                          |
