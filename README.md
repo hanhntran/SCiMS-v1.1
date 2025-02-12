@@ -35,7 +35,14 @@ scims -h
 `SCiMS` can be used on any alignment data, regardless of the platform used for sequencing or the aligner that generated the alignment file. 
 
 ```
-scims --master_file <master_file.txt> --scaffolds <scaffolds.txt> --metadata <metadata_file.txt> --system XY --homogametic_id chrom_id --heterogametic_id chrom_id --id_column sample-id --output <output_file.txt>
+scims --master_file <master_file.txt> \
+        --scaffolds <scaffolds.txt> \
+        --metadata <metadata_file.txt> \
+        --system XY \
+        --homogametic_id chrom_id \
+        --heterogametic_id chrom_id \
+        --id_column sample-id \
+        --output <output_file.txt>
 ```
 | Option             | Description                                                                          |
 |--------------------|----------------------------------------------------------------------------------|
