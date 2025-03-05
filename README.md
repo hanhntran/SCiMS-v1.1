@@ -35,7 +35,7 @@ scims -h
 `SCiMS` can be used on any alignment data, regardless of the platform used for sequencing or the aligner that generated the alignment file. 
 
 ```
-scims --master_file <master_file.txt> \
+scims --idxstats_file <sample.idxstats> \
         --scaffolds <scaffolds.txt> \
         --metadata <metadata_file.txt> \
         --system <XY or ZW> \
@@ -47,17 +47,18 @@ scims --master_file <master_file.txt> \
 | Option             | Description                                                                          |
 |--------------------|----------------------------------------------------------------------------------|
 | -h, --help         | Show this help message and exit                                                      |
-| --master_file      | Path to the master file containing paths to the .idxstats files for each sample         |
+| --idxstats_file    | Path to the .idxstats file for the sample                                             |
 | --scaffolds        | Path to the scaffolds.txt file containing the scaffolds of interest                     |
-| --metadata         | Path to the metadata file containing the sample IDs                                   |
 | --heterogametic_id | The ID of the heterogametic sex chromosome                                             |
 | --homogametic_id   | The ID of the homogametic sex chromosome                                               |
 | --system           | The sex determination system (XY or ZW)                                                |
 | --output           | Path to the output file                                                                |
-| --threshold        | The threshold for the sex calling algorithm (default: 0.95)                             |
-| --id_column        | The column name of the sample ID in the metadata file                                  |
-| --training_data    | If you have a training dataset, you can specify the path to the training data here        |
-
+| --threshold [OPTIONAL]        | The threshold for the sex calling algorithm (default: 0.95)                             |
+| --training_data [OPTIONAL]    | If you have a training dataset, you can specify the path to the training data here        |
+| --multiple [OPTIONAL]    | If you want to run SCiMS on multiple samples, you can specify this option [True or False, default: False]         |
+| --metadata_file [OPTIONAL]    | If you have a metadata file and would like to add SCiMS predicted sex to the metadata file, you can specify the path to the metadata file here         |
+| --id_column [OPTIONAL]        | The column name of the sample ID in the metadata file                                  |
+| --log [OPTIONAL]    | Path to log file         |
 ## Required input files
 
 ### `scaffolds.txt`
@@ -83,16 +84,6 @@ samtools index <bam_file>
 
 ```shell
 samtools idxstats <bam_file> > <prefix>.idxstats
-```
-### `master_file.txt`
-To run SCiMS, you will need to create a master file. This file should contain the paths to the .idxstats files for each sample. 
-
-Example of a master_file.txt:
-```
-path/to/idxstats/file/sample1.idxstats
-path/to/idxstats/file/sample2.idxstats
-path/to/idxstats/file/sample3.idxstats
-path/to/idxstats/file/sample4.idxstats
 ```
 
 ### `metadata_file.txt`
