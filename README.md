@@ -2,10 +2,10 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="static/scims_logo.png" alt="Logo" width="250" height="100">
+    <img src="static/scims_logo.png" alt="Logo" width="450" height="200">
   </a>
 
-  <h1 align="center">SCiMS: Sex Calling in Metagenomic Sequencing</h3>
+  <h1 align="center">Sex Calling in Metagenomic Sequencing</h1>
 
   <p align="center">
     An tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.
