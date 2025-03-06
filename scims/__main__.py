@@ -1,20 +1,20 @@
 """
 SCiMS: Sex Calling in Metagenomic Sequencing
 
-This script classifies host sex using metagenomic sequencing data alone. Metagenomic samples are classified into male, female, or uncertain 
-based on coverage ratios of putative sex chromosomes (X/Y or Z/W). It uses a kernel density estimation (KDE) approach, comparing coverage ratios 
-against training data. In the XY system, 'male' is heterogametic (XY); in the ZW system, 'female' is heterogametic (ZW).
+This script classifies host sex using metagenomic sequencing data alone. 
+Metagenomic samples are classified into male, female, or uncertain based on 
+coverage ratios of putative sex chromosomes (X/Y or Z/W). It uses a kernel 
+density estimation (KDE) approach, comparing coverage ratios against training data.
+In the XY system, 'male' is heterogametic (XY); in the ZW system, 'female' is 
+heterogametic (ZW).
 
 Author: Hanh Tran
-
 Version: 1.1.0
 """
 
 import argparse
 import logging
 import os
-import re
-import numpy as np
 import pandas as pd
 import sys
 
@@ -23,157 +23,172 @@ from scipy.stats import gaussian_kde
 from .utils import (
     read_metadata,
     find_sample_id_column,
-    read_master_file,
     extract_sample_id
 )
+from .helpers import load_training_data
+from .process_idxstats import process_idxstats_file
 
-from .helpers import (
-    load_training_data
-)
-
-from .process_idxstats import (
-    process_idxstats_file
-)
-
-
-# -------------------------------------------------------------------------------------------------
-# CONFIGURE LOGGING
-# -------------------------------------------------------------------------------------------------
-#logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-# -------------------------------------------------------------------------------------------------
-# MAIN FUNCTION
-# -------------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="SCiMS: Sex Calling in Metagenomic Sequences")
-
-    # Common arguments
+    parser = argparse.ArgumentParser(description="SCiMS: Sex Calling in Metagenomic Sequencing")
+    
+    # Mode selection: default is single-sample mode.
+    parser.add_argument('--idxstats_file', dest="idxstats_file", help='Path to a single idxstats file (default mode)')
+    parser.add_argument('--idxstats_folder', dest="idxstats_folder", help='Path to the folder containing idxstats files for multiple-sample mode')
+    
     parser.add_argument('--scaffolds', dest="scaffold_ids_file", required=True, help='Path to the text file containing scaffold IDs')
     parser.add_argument('--homogametic_id', dest="x_id", required=True, help='ID of the homogametic chromosome (e.g. X or Z)')
     parser.add_argument('--heterogametic_id', dest="y_id", required=True, help='ID of the heterogametic chromosome (e.g. Y or W)')
-    parser.add_argument('--system', dest="system", choices=['XY', 'ZW'], required=True, help='Sex determination system')
+    parser.add_argument('--ZW', dest="ZW", action="store_true", help='Switch to ZW system (default is XY)')
     parser.add_argument('--threshold', dest="threshold", type=float, default=0.95, help='Probability threshold for determining sex')
+    parser.add_argument('--output_dir', dest="output_dir", required=True, help='Path to the output directory')
     parser.add_argument('--training_data', dest="training_data", help='Path to the training data file', default="training_data_hmp_1000x_normalizedXY.txt")
     
-    # Mode options
-    # Default is single-sample mode
-    parser.add_argument('--idxstats_file', help='Path to a single idxstats file (default mode)')
-    # Option to process multiple files
-    parser.add_argument('--multiple', action='store_true', help="Flag to process multiple files from a folder")
-    parser.add_argument('--idxstats_folder', help='Path to the folder containing idxstats files (required if --multiple is set)')
-    
-    # For metadata update (optional, used only in multiple mode)
-    parser.add_argument('--metadata', help='Path to the metadata file (optional, used in multiple mode)')
+    # Optional metadata update (only used in multiple-sample mode)
+    parser.add_argument('--metadata', dest="metadata", help='Path to the metadata file (optional, used in multiple-sample mode)')
     parser.add_argument('--id_column', dest="id_column", help='User-specified sample ID column name in metadata')
     
-    parser.add_argument('--output', dest="output_file", required=True, help='Path to the output file')
-
-    # Add log file argument
-    parser.add_argument('--log', dest="log_file", help='Path to the log file')
+    # New boolean flag for log output (default is False)
+    parser.add_argument('--log', dest="log", action="store_true", help='If set, a log file is written to the output directory (scims.log)')
+    
     args = parser.parse_args()
-    #Create logger and set its level
+    
+    # Setup logging after parsing arguments
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-    # Console handler
+    
+    # Clear any existing handlers
+    if logger.hasHandlers():
+        logger.handlers.clear()
+    
+    # Add console handler
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
-
-    # File handler if log file is specified
-    if args.log_file:
-        file_handler = logging.FileHandler(args.log_file, mode='w')
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(args.output_dir, exist_ok=True)
+    
+    # Add file handler if the --log flag is set
+    if args.log:
+        log_file_path = os.path.join(args.output_dir, "scims.log")
+        file_handler = logging.FileHandler(log_file_path, mode='w')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+        logger.info(f"Log file created at: {log_file_path}")
     
-    # Print header
-    logger.info("=================================================")
-    logger.info(
-        """
-        _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
-        _|      _|         _|    _|_|  _|_|   _|        
-        _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
-            _|  _|         _|    _|      _|       _|  
-        _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
-        
-        ================================================="""
-    )
-    logger.info("SCiMS: Sex Calling in Metagenomic Sequences")
+    logger.info(" \n=================================================")
+    logger.info("""
+    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
+    _|      _|         _|    _|_|  _|_|   _|        
+    _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
+        _|  _|         _|    _|      _|       _|  
+    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
+    =================================================""")
+    logger.info("SCiMS: Sex Calling in Metagenomic Sequencing")
     logger.info("Version: 1.1.0")
     logger.info("=================================================")
-
-
-    # 1. Load scaffold IDs (common to both modes)
+    
+    # Validate mode: either a single file or folder must be provided
+    if args.idxstats_folder:
+        mode = "multiple"
+    elif args.idxstats_file:
+        mode = "single"
+    else:
+        logger.error("You must specify either --idxstats_file for single-sample mode or --idxstats_folder for multiple-sample mode.")
+        sys.exit(1)
+    
+    # Load scaffold IDs
     try:
         with open(args.scaffold_ids_file, 'r') as sf:
             scaffold_ids = [line.strip() for line in sf if line.strip()]
     except Exception as e:
         logger.error(f"Failed to read scaffold IDs: {e}")
         sys.exit(1)
-
-    # 2. Load training data and build KDE models (common to both modes)
+    
+    # Load training data and build KDE models
     try:
         training_data = load_training_data(args.training_data)
     except Exception as e:
         logger.error(f"Failed to load training data: {e}")
         sys.exit(1)
     
-    if args.system == 'XY':
-        male_rows = training_data[training_data['actual_sex'] == 'male']
-        female_rows = training_data[training_data['actual_sex'] == 'female']
-        male_data = male_rows[['Rx', 'Ry']].dropna().values.T
-        female_data = female_rows[['Rx', 'Ry']].dropna().values.T
-    else:  # ZW system
+    if args.ZW:
+        # Use ZW system columns from training data
         male_rows = training_data[training_data['actual_sex_zw'] == 'male']
         female_rows = training_data[training_data['actual_sex_zw'] == 'female']
         male_data = male_rows[['Rz', 'Rw']].dropna().values.T
         female_data = female_rows[['Rz', 'Rw']].dropna().values.T
-
+    else:
+        # Default to XY system
+        male_rows = training_data[training_data['actual_sex'] == 'male']
+        female_rows = training_data[training_data['actual_sex'] == 'female']
+        male_data = male_rows[['Rx', 'Ry']].dropna().values.T
+        female_data = female_rows[['Rx', 'Ry']].dropna().values.T
+    
     kde_male_joint = gaussian_kde(male_data)
     kde_female_joint = gaussian_kde(female_data)
-
-    results = []
-
-    # Check mode and required arguments
-    if args.multiple:
-        if not args.idxstats_folder:
-            logger.error("For multiple-sample mode, --idxstats_folder is required.")
-            sys.exit(1)
-        # Get all idxstats files in the provided folder (filter by extension)
-        folder_files = [os.path.join(args.idxstats_folder, f) for f in os.listdir(args.idxstats_folder) if f.endswith(".idxstats")]
-        if not folder_files:
-            logger.error("No idxstats files found in the folder.")
-            sys.exit(1)
-        for idxstats_file in folder_files:
-            results.append(process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde_female_joint))
-    else:
-        # Single sample mode (default)
-        if not args.idxstats_file:
-            logger.error("For single-sample mode, --idxstats_file is required.")
-            sys.exit(1)
-        results.append(process_idxstats_file(args.idxstats_file, scaffold_ids, args, kde_male_joint, kde_female_joint))
-        logger.info(f"SCiMS predicting sex for {args.idxstats_file}: {results}")
-    # Convert results to DataFrame
-    results_df = pd.DataFrame(results)
     
-    # If in multiple mode and metadata is provided, update the metadata file
-    if args.multiple and args.metadata:
+    if mode == "multiple":
         try:
-            metadata = read_metadata(args.metadata)
-            sample_id_col = find_sample_id_column(metadata, args.id_column)
-            merged_df = pd.merge(metadata, results_df, left_on=sample_id_col, right_on='SCiMS_ID', how='left')
-            merged_df.drop(columns=['SCiMS_ID'], inplace=True)
-            merged_df.to_csv(args.output_file, sep='\t', index=False)
-            logger.info(f"Updated metadata with classification results written to {args.output_file}")
+            folder_files = [os.path.join(args.idxstats_folder, f) 
+                            for f in os.listdir(args.idxstats_folder) if f.endswith(".idxstats")]
         except Exception as e:
-            logger.error(f"Error updating metadata: {e}")
+            logger.error(f"Error reading idxstats folder: {e}")
             sys.exit(1)
+            
+        if not folder_files:
+            logger.error("No idxstats files found in the provided folder.")
+            sys.exit(1)
+        
+        all_results = []  # To collect results for optional metadata merging
+        for idxstats_file in folder_files:
+            result = process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde_female_joint)
+            all_results.append(result)
+            # Filter to output only the desired columns
+            # Use this:
+            out_dict = {
+                "SCiMS_ID": result.get("SCiMS_ID"),
+                "SCiMS_predicted sex": result.get("SCiMS_sex"),
+                "SCiMS_male_post_prob": result.get("SCiMS_male_post_prob"),
+                "SCiMS_female_post_prob": result.get("SCiMS_female_post_prob")
+            }
+            base_name = os.path.basename(idxstats_file).split('.')[0]
+            output_file = os.path.join(args.output_dir, f"{base_name}_results.txt")
+            pd.DataFrame([out_dict]).to_csv(output_file, sep='\t', index=False)
+            logger.info(f"Results written to {output_file}")
+        
+        # If metadata is provided, merge all results with metadata and write one updated metadata file
+            if args.metadata and not args.id_column:
+                logger.error("When providing a metadata file, you must also specify the id column using --id_column.")
+                sys.exit(1)
+            else:
+                try:
+                    results_df = pd.DataFrame(all_results)
+                    metadata = read_metadata(args.metadata)
+                    sample_id_col = find_sample_id_column(metadata, args.id_column)
+                    merged_df = pd.merge(metadata, results_df, left_on=sample_id_col, right_on='SCiMS_ID', how='left')
+                    merged_df.drop(columns=['SCiMS_ID'], inplace=True)
+                    metadata_file = os.path.join(args.output_dir, "metadata_with_classification.txt")
+                    merged_df.to_csv(metadata_file, sep='\t', index=False)
+                    logger.info(f"Updated metadata with classification results written to {metadata_file}")
+                except Exception as e:
+                    logger.error(f"Error updating metadata: {e}")
+                    sys.exit(1)
     else:
-        # For single-sample mode or if no metadata is provided, simply output the results
-        results_df.to_csv(args.output_file, sep='\t', index=False)
-        logger.info(f"Results written to {args.output_file}")
-
+        # Single-sample mode: process one file and write the filtered result
+        result = process_idxstats_file(args.idxstats_file, scaffold_ids, args, kde_male_joint, kde_female_joint)
+        out_dict = {
+            "SCiMS_ID": result.get("SCiMS_ID"),
+            "SCiMS_predicted sex": result.get("SCiMS_sex"),
+            "SCiMS_male_post_prob": result.get("SCiMS_male_post_prob"),
+            "SCiMS_female_post_prob": result.get("SCiMS_female_post_prob")
+        }
+        results_df = pd.DataFrame([out_dict])
+        base_name = os.path.basename(args.idxstats_file).split('.')[0]
+        output_file = os.path.join(args.output_dir, f"{base_name}_results.txt")
+        results_df.to_csv(output_file, sep='\t', index=False)
+        logger.info(f"Results written to {output_file}")
+    
 if __name__ == "__main__":
     main()
