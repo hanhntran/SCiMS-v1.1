@@ -8,7 +8,7 @@
   <h3 align="center">SCiMS: Sex Calling in Metagenomic Sequencing</h3>
 
   <p align="center">
-    An intuitive and accessible tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.
+    An tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.
     <br />
     <a href="https://github.com/hanhntran/SCiMS-v1.1"><strong>Explore the docs »</strong></a>
     <br />
