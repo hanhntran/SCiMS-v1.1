@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="static/scims_logo.png" alt="Logo" width="500" height="250">
+    <img src="static/scims_logo.png" alt="Logo" width="450" height="200">
   </a>
 
   <h3 align="center">SCiMS: Sex Calling in Metagenomic Sequencing</h3>
