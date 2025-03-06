@@ -22,7 +22,7 @@ def process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde
         # Subset to scaffolds of interest
         idxstats = idxstats.loc[scaffold_ids]
 
-        if args.system == 'XY':
+        if not args.ZW:  # Default to XY system
             classification_info = process_sample_xy(
                 idxstats,
                 x_id=args.x_id,
@@ -38,8 +38,7 @@ def process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde
                 'SCiMS_reads_mapped_to_X': classification_info['Reads mapped to X'],
                 'SCiMS_reads_mapped_to_Y': classification_info['Reads mapped to Y'],
                 'SCiMS_male_post_prob': np.round(classification_info['Posterior probability of being male'], 3),
-                'SCiMS_female_post_prob': np.round(classification_info['Posterior probability of being female'], 3),
-                #'Status': 'Success'
+                'SCiMS_female_post_prob': np.round(classification_info['Posterior probability of being female'], 3)
             }
         else:  # ZW system
             classification_info = process_sample_zw(
@@ -57,13 +56,12 @@ def process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde
                 'SCiMS_reads_mapped_to_Z': classification_info['Reads mapped to Z'],
                 'SCiMS_reads_mapped_to_W': classification_info['Reads mapped to W'],
                 'SCiMS_male_post_prob': np.round(classification_info['Posterior probability of being male'], 3),
-                'SCiMS_female_post_prob': np.round(classification_info['Posterior probability of being female'], 3),
-                #'Status': 'Success'
+                'SCiMS_female_post_prob': np.round(classification_info['Posterior probability of being female'], 3)
             }
     except Exception as exc:
         logging.error(f"Error processing {idxstats_file}: {exc}")
         result = {
-            'SCiMS sample ID': sample_id or 'Unknown',
+            'SCiMS_ID': sample_id or 'Unknown',
             'Status': f'Failed: {exc}'
         }
     return result
