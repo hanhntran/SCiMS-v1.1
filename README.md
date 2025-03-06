@@ -1,9 +1,35 @@
-# `SCiMS` : Sex Calling in Metagenomic Sequences
-The goal of this software package is to provide an intuitive and accessible tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.  
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/othneildrew/Best-README-Template">
+    <img src="static/scims_logo.png" alt="Logo" width="160" height="80">
+  </a>
 
-## Overview
+  <h3 align="center">SCiMS: Sex Calling in Metagenomic Sequencing</h3>
+
+  <p align="center">
+    An intuitive and accessible tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.
+    <br />
+    <a href="https://github.com/hanhntran/SCiMS-v1.1"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/hanhntran/SCiMS-v1.1">View Demo</a>
+    &middot;
+    <a href="https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    &middot;
+    <a href="https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
+
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
 Metagenomic sequencing data often contains a mix of host and non-host sequences. SCiMS salvages the reads mapping statistics that align to the host genome and uses them to identify the sex of the host organism. SCiMS leverages robust statistical methods to accurately determine the sex of the host, providing host sex information for downstream analyses.
+
+
+
 
 ## Requirements
 
@@ -102,31 +128,73 @@ sample4		D
 ## Example run
 Example files can be found in the ```test_data``` folder.
 
+### Running SCiMS on a single sample
 Change path to the ```test_data``` folder and run the following command:
 ```
-scims --scaffolds GRCh38_scaffolds.txt --master_file test_master_file.txt \
-      --metadata metadata_file.txt \
+scims --idxstats_file ./idxstats_files/S79F300.idxstats \
+      --scaffolds GRCh38_scaffolds.txt \
       --system XY \
       --homogametic_id NC_000023.11 \
       --heterogametic_id NC_000024.10 \
-      --id_column sample-id \
       --output test_output.txt
 ```
 
-Output:
+Output log:
 ```
+2025-03-06 00:22:34,576 - INFO - Log file created at: out/scims.log
+2025-03-06 00:22:34,576 - INFO -  
 =================================================
-
+2025-03-06 00:22:34,576 - INFO - 
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
     _|      _|         _|    _|_|  _|_|   _|        
     _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
         _|  _|         _|    _|      _|       _|  
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
-    
-=================================================
-SCiMS: Sex Calling in Metagenomic Sequencing
-2025-02-04 12:30:14,018 - INFO - Using 'Run' as the sample ID column.
-2025-02-04 12:30:55,747 - INFO - Results written to test_output.txt
+    =================================================
+2025-03-06 00:22:34,576 - INFO - SCiMS: Sex Calling in Metagenomic Sequencing
+2025-03-06 00:22:34,576 - INFO - Version: 1.1.0
+2025-03-06 00:22:34,576 - INFO - =================================================
+2025-03-06 00:22:34,591 - INFO - Results written to out/S79F300_results.txt
+```
+Output file:
+```
+$ cat out/S79F300_results.txt
 ```
 
+### Running SCiMS on multiple samples
 
+```
+scims   --idxstats_folder idxstats_files/  \
+        --scaffolds GRCh38_scaffolds.txt \
+        --homogametic_id NC_000023.11 \
+        --heterogametic_id NC_000024.10 \
+        --output_dir out \
+        --metadata metadata_file.txt \
+        --id_column sample-id \
+        --log log.txt
+```
+
+Output log:
+```
+2025-03-06 00:29:09,830 - INFO - Log file created at: out/scims.log
+2025-03-06 00:29:09,830 - INFO -  
+=================================================
+2025-03-06 00:29:09,830 - INFO - 
+    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
+    _|      _|         _|    _|_|  _|_|   _|        
+    _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
+        _|  _|         _|    _|      _|       _|  
+    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
+    =================================================
+2025-03-06 00:29:09,830 - INFO - SCiMS: Sex Calling in Metagenomic Sequencing
+2025-03-06 00:29:09,830 - INFO - Version: 1.1.0
+2025-03-06 00:29:09,830 - INFO - =================================================
+2025-03-06 00:29:09,845 - INFO - Results written to out/S28M1000000_results.txt
+2025-03-06 00:29:09,846 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
+2025-03-06 00:29:09,848 - INFO - Results written to out/S56F150_results.txt
+2025-03-06 00:29:09,849 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
+2025-03-06 00:29:09,851 - INFO - Results written to out/S79F300_results.txt
+2025-03-06 00:29:09,852 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
+2025-03-06 00:29:09,854 - INFO - Results written to out/S90M250_results.txt
+2025-03-06 00:29:09,855 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
+```
