@@ -36,10 +36,10 @@ def main():
     parser.add_argument('--idxstats_folder', dest="idxstats_folder", help='Path to the folder containing idxstats files for multiple-sample mode')
     
     parser.add_argument('--scaffolds', dest="scaffold_ids_file", required=True, help='Path to the text file containing scaffold IDs')
-    parser.add_argument('--homogametic_id', dest="x_id", required=True, help='ID of the homogametic chromosome (e.g. X or Z)')
-    parser.add_argument('--heterogametic_id', dest="y_id", required=True, help='ID of the heterogametic chromosome (e.g. Y or W)')
+    parser.add_argument('--homogametic_scaffold', dest="homogametic_scaffold", required=True, help='ID of the homogametic scaffold (e.g. X or Z)')
+    parser.add_argument('--heterogametic_scaffold', dest="heterogametic_scaffold", required=True, help='ID of the heterogametic scaffold (e.g. Y or W)')
     parser.add_argument('--ZW', dest="ZW", action="store_true", help='Switch to ZW system (default is XY)')
-    parser.add_argument('--threshold', dest="threshold", type=float, default=0.95, help='Probability threshold for determining sex')
+    parser.add_argument('--threshold', dest="threshold", type=float, default=0.5, help='Probability threshold for determining sex')
     parser.add_argument('--output_dir', dest="output_dir", required=True, help='Path to the output directory')
     parser.add_argument('--training_data', dest="training_data", help='Path to the training data file', default="training_data_hmp_1000x_normalizedXY.txt")
     
@@ -51,6 +51,11 @@ def main():
     parser.add_argument('--log', dest="log", action="store_true", help='If set, a log file is written to the output directory (scims.log)')
     
     args = parser.parse_args()
+    
+    # Check metadata parameters early
+    if args.metadata and not args.id_column:
+        print("Error: When providing a metadata file, you must also specify the id column using --id_column.")
+        sys.exit(1)
     
     # Setup logging after parsing arguments
     logger = logging.getLogger(__name__)
@@ -145,11 +150,10 @@ def main():
         for idxstats_file in folder_files:
             result = process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde_female_joint)
             all_results.append(result)
-            # Filter to output only the desired columns
-            # Use this:
+            # Build output dictionary using consistent keys
             out_dict = {
                 "SCiMS_ID": result.get("SCiMS_ID"),
-                "SCiMS_predicted sex": result.get("SCiMS_sex"),
+                "SCiMS_predicted_sex": result.get("SCiMS_sex"),
                 "SCiMS_male_post_prob": result.get("SCiMS_male_post_prob"),
                 "SCiMS_female_post_prob": result.get("SCiMS_female_post_prob")
             }
@@ -158,29 +162,27 @@ def main():
             pd.DataFrame([out_dict]).to_csv(output_file, sep='\t', index=False)
             logger.info(f"Results written to {output_file}")
         
-        # If metadata is provided, merge all results with metadata and write one updated metadata file
-            if args.metadata and not args.id_column:
-                logger.error("When providing a metadata file, you must also specify the id column using --id_column.")
+        # Merge metadata once after processing all files
+        if args.metadata:
+            try:
+                results_df = pd.DataFrame(all_results)
+                metadata = read_metadata(args.metadata)
+                sample_id_col = find_sample_id_column(metadata, args.id_column)
+                merged_df = pd.merge(metadata, results_df, left_on=sample_id_col, right_on='SCiMS_ID', how='left')
+                merged_df.drop(columns=['SCiMS_ID'], inplace=True)
+                metadata_basename = os.path.basename(args.metadata).split('.')[0]
+                metadata_file = os.path.join(args.output_dir, f"{metadata_basename}_scims_updated.txt")
+                merged_df.to_csv(metadata_file, sep='\t', index=False)
+                logger.info(f"Updated metadata with classification results written to {metadata_file}")
+            except Exception as e:
+                logger.error(f"Error updating metadata: {e}")
                 sys.exit(1)
-            else:
-                try:
-                    results_df = pd.DataFrame(all_results)
-                    metadata = read_metadata(args.metadata)
-                    sample_id_col = find_sample_id_column(metadata, args.id_column)
-                    merged_df = pd.merge(metadata, results_df, left_on=sample_id_col, right_on='SCiMS_ID', how='left')
-                    merged_df.drop(columns=['SCiMS_ID'], inplace=True)
-                    metadata_file = os.path.join(args.output_dir, "metadata_with_classification.txt")
-                    merged_df.to_csv(metadata_file, sep='\t', index=False)
-                    logger.info(f"Updated metadata with classification results written to {metadata_file}")
-                except Exception as e:
-                    logger.error(f"Error updating metadata: {e}")
-                    sys.exit(1)
     else:
         # Single-sample mode: process one file and write the filtered result
         result = process_idxstats_file(args.idxstats_file, scaffold_ids, args, kde_male_joint, kde_female_joint)
         out_dict = {
             "SCiMS_ID": result.get("SCiMS_ID"),
-            "SCiMS_predicted sex": result.get("SCiMS_sex"),
+            "SCiMS_predicted_sex": result.get("SCiMS_sex"),
             "SCiMS_male_post_prob": result.get("SCiMS_male_post_prob"),
             "SCiMS_female_post_prob": result.get("SCiMS_female_post_prob")
         }
