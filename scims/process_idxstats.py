@@ -25,8 +25,8 @@ def process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde
         if not args.ZW:  # Default to XY system
             classification_info = process_sample_xy(
                 idxstats,
-                x_id=args.x_id,
-                y_id=args.y_id,
+                x_id=args.homogametic_scaffold,
+                y_id=args.heterogametic_scaffold,
                 male_kde=kde_male_joint,
                 female_kde=kde_female_joint,
                 threshold=args.threshold
@@ -43,8 +43,8 @@ def process_idxstats_file(idxstats_file, scaffold_ids, args, kde_male_joint, kde
         else:  # ZW system
             classification_info = process_sample_zw(
                 idxstats,
-                z_id=args.x_id,
-                w_id=args.y_id,
+                z_id=args.homogametic_scaffold,
+                w_id=args.heterogametic_scaffold,
                 male_kde=kde_male_joint,
                 female_kde=kde_female_joint,
                 threshold=args.threshold
