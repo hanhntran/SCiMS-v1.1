@@ -1,14 +1,18 @@
 from setuptools import setup, find_packages
 import os
-
+with open("scims/__init__.py", "r") as f:
+    for line in f:
+        if line.startswith("__version__"):
+            version = line.strip().split("=")[1].strip(' "')
+            break
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name="SCiMS",  
-    version="1.0.0",  
+    version=version,  
     author="Hanh Tran",
-    description="SCiMS: Sex Calling in Metagenomic Sequencing",
+    description="SCiMS: Sex Calling in Metagenomic Sequences",
     long_description=long_description,
     long_description_content_type="text/markdown",  
     url="https://github.com/hanhntran/SCiMS", 
