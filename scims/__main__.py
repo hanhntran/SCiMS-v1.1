@@ -49,6 +49,7 @@ def main():
     
     # New boolean flag for log output (default is False)
     parser.add_argument('--log', dest="log", action="store_true", help='If set, a log file is written to the output directory (scims.log)')
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0.0')
     
     args = parser.parse_args()
     
@@ -91,7 +92,7 @@ def main():
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
     =================================================""")
     logger.info("SCiMS: Sex Calling in Metagenomic Sequencing")
-    logger.info("Version: 1.1.0")
+    logger.info("Version: 1.0.0")
     logger.info("=================================================")
     
     # Validate mode: either a single file or folder must be provided
