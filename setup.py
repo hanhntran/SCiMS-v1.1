@@ -6,12 +6,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="SCiMS",  
-    version="1.1.0",  
+    version="1.0.0",  
     author="Hanh Tran",
     description="SCiMS: Sex Calling in Metagenomic Sequencing",
     long_description=long_description,
     long_description_content_type="text/markdown",  
-    url="https://github.com/hanhntran/SCiMS_v2", 
+    url="https://github.com/hanhntran/SCiMS", 
     packages=find_packages(),  # Finds all packages (scims, tests, etc.)
     package_data={
         'scims': ['data/training_data_hmp_1000x_normalizedXY.txt'],
