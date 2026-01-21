@@ -32,4 +32,5 @@ __all__ = [
 ]
 
 # Package version
-__version__ = '1.1.0'
+#__version__ = '1.0.0' # first release
+__version__ = '1.0.1' # second release: updated version number in __main__.py and setup.py to match the version number in the __init__.py file so that the version number is consistent across the package
