@@ -148,7 +148,7 @@ Output log:
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
     =================================================
 2025-03-06 00:22:34,576 - INFO - SCiMS: Sex Calling in Metagenomic Sequencing
-2025-03-06 00:22:34,576 - INFO - Version: 1.1.0
+2025-03-06 00:22:34,576 - INFO - Version: 1.0.0
 2025-03-06 00:22:34,576 - INFO - =================================================
 2025-03-06 00:22:34,591 - INFO - Results written to out/S79F300_results.txt
 ```
@@ -183,7 +183,7 @@ Output log:
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
     =================================================
 2025-03-06 00:29:09,830 - INFO - SCiMS: Sex Calling in Metagenomic Sequencing
-2025-03-06 00:29:09,830 - INFO - Version: 1.1.0
+2025-03-06 00:29:09,830 - INFO - Version: 1.0.0
 2025-03-06 00:29:09,830 - INFO - =================================================
 2025-03-06 00:29:09,845 - INFO - Results written to out/S28M1000000_results.txt
 2025-03-06 00:29:09,846 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
