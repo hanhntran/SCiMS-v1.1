@@ -45,7 +45,7 @@ conda create -n scims python=3.9
 conda activate scims
 
 # Install SCiMS
-pip install git+https://github.com/hanhntran/SCiMS-v1.1
+pip install scims
 ```
 
 To confirm that the instillation was successful, run:
