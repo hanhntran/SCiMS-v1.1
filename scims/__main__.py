@@ -9,7 +9,7 @@ In the XY system, 'male' is heterogametic (XY); in the ZW system, 'female' is
 heterogametic (ZW).
 
 Author: Hanh Tran
-Version: 1.1.0
+Version: {__version__}
 """
 
 import argparse
@@ -17,7 +17,7 @@ import logging
 import os
 import pandas as pd
 import sys
-
+from scims import __version__ 
 from scipy.stats import gaussian_kde
 
 from .utils import (
@@ -29,7 +29,7 @@ from .helpers import load_training_data
 from .process_idxstats import process_idxstats_file
 
 def main():
-    parser = argparse.ArgumentParser(description="SCiMS: Sex Calling in Metagenomic Sequencing")
+    parser = argparse.ArgumentParser(description="SCiMS: Sex Calling in Metagenomic Sequences")
     
     # Mode selection: default is single-sample mode.
     parser.add_argument('--idxstats_file', dest="idxstats_file", help='Path to a single idxstats file (default mode)')
@@ -49,8 +49,7 @@ def main():
     
     # New boolean flag for log output (default is False)
     parser.add_argument('--log', dest="log", action="store_true", help='If set, a log file is written to the output directory (scims.log)')
-    parser.add_argument('--version', action='version', version='%(prog)s 1.0.0')
-    
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')    
     args = parser.parse_args()
     
     # Check metadata parameters early
@@ -92,7 +91,7 @@ def main():
     _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
     =================================================""")
     logger.info("SCiMS: Sex Calling in Metagenomic Sequencing")
-    logger.info("Version: 1.0.0")
+    logger.info(f"Version: {__version__}")
     logger.info("=================================================")
     
     # Validate mode: either a single file or folder must be provided
