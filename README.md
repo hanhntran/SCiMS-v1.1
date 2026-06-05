@@ -1,45 +1,26 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="static/scims_logo.png" alt="Logo" width="450" height="200">
-  </a>
+# Sex Calling in Metagenomic Sequences
 
-  <h1 align="center">Sex Calling in Metagenomic Sequences</h1>
+A tool for inferring the chromosomal sex of a host organism from the alignment statistics of metagenomic sequencing data.   
 
-  <p align="center">
-    An tool for identifying the sex of a host organism based on the alignment of metagenomic sequences.
-    <br />
-    <br />
-    <a href="https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    &middot;
-    <a href="https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
-  </p>
-</div>
+[Report Bug](https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=bug&template=bug-report---.md) · [Request Feature](https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=enhancement&template=feature-request---.md)
 
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Metagenomic sequencing data often contains a mix of host and non-host sequences. SCiMS salvages the reads mapping statistics that align to the host genome and uses them to identify the sex of the host organism. SCiMS leverages robust statistical methods to accurately determine the sex of the host, providing host sex information for downstream analyses.
-
-
-
+Metagenomic sequencing data typically contains a mix of host and non-host (microbial) sequences. SCiMS uses the read-mapping statistics of the fraction of reads that align to the host genome to infer the chromosomal sex of the host. By restricting classification to the sex chromosomes and modeling the observed read counts directly, SCiMS provides host sex information that can be used in downstream analyses.
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.14+
 - numpy, pandas, scipy, setuptools
-- (Optional) samtools for generating `.idxstats` files 
+- samtools for generating `.idxstats` files
 
 ## Installation instructions
 
 The simpliest installation works through the [conda](https://docs.conda.io/en/latest/miniconda.html) installer that can maintain different versions of Python on the same machine. 
 
 ```
-# Create a new conda environment with Python 3.9
-conda create -n scims python=3.9
+# Create a new conda environment with Python 3.14
+conda create -n scims python=3.14
 
 # Activate the environment
 conda activate scims
@@ -49,42 +30,68 @@ pip install scims
 ```
 
 To confirm that the instillation was successful, run:
+
 ```
-scims -h
+scims call -h
 ```
 
 ## Usage
-`SCiMS` can be used on any alignment data, regardless of the platform used for sequencing or the aligner that generated the alignment file. 
+
+Classification is run through the `scims call` subcommand. It accepts BAM files directly (requires samtools) or pre-computed `.idxstats` files, and works on alignment data from any sequencing platform or aligner.
 
 ```
-scims --idxstats_file <sample.idxstats> \
-        --scaffolds <scaffolds.txt> \
-        --metadata <metadata_file.txt> \
-        --system <XY or ZW> \
-        --homogametic_id <chrom_id> \
-        --heterogametic_id <chrom_id> \
-        --id_column <sample-id> \
-        --output <output_file.txt>
+scims call \
+    --idxstats_file <sample.idxstats> \
+    --scaffolds <scaffolds.txt> \
+    --homogametic_id <chrom_id> \
+    --heterogametic_id <chrom_id> \
+    --output_dir <output_directory>
 ```
-| Option             | Description                                                                          |
-|--------------------|----------------------------------------------------------------------------------|
-| -h, --help         | Show this help message and exit                                                      |
-| --idxstats_file    | Path to the .idxstats file for the sample                                             |
-| --scaffolds        | Path to the scaffolds.txt file containing the scaffolds of interest                     |
-| --heterogametic_id | The ID of the heterogametic sex chromosome                                             |
-| --homogametic_id   | The ID of the homogametic sex chromosome                                               |
-| --system           | The sex determination system (XY or ZW)                                                |
-| --output           | Path to the output file                                                                |
-| --threshold [OPTIONAL]        | The threshold for the sex calling algorithm (default: 0.95)                             |
-| --training_data [OPTIONAL]    | If you have a training dataset, you can specify the path to the training data here        |
-| --multiple [OPTIONAL]    | If you want to run SCiMS on multiple samples, you can specify this option [True or False, default: False]         |
-| --metadata_file [OPTIONAL]    | If you have a metadata file and would like to add SCiMS predicted sex to the metadata file, you can specify the path to the metadata file here         |
-| --id_column [OPTIONAL]        | The column name of the sample ID in the metadata file                                  |
-| --log [OPTIONAL]    | Path to log file         |
+
+The XY system is assumed by default. Pass `--ZW` for ZW organisms.
+
+### Input (provide exactly one)
+
+
+| Option              | Description                                        |
+| ------------------- | -------------------------------------------------- |
+| `--bam`             | Path to a single BAM file                          |
+| `--bam_folder`      | Path to a folder of BAM files (batch mode)         |
+| `--idxstats_file`   | Path to a single `.idxstats` file                  |
+| `--idxstats_folder` | Path to a folder of `.idxstats` files (batch mode) |
+
+
+### Required options
+
+
+| Option               | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `--scaffolds`        | Path to the `scaffolds.txt` file listing scaffolds of interest |
+| `--homogametic_id`   | Scaffold ID for the homogametic sex chromosome (X or Z)        |
+| `--heterogametic_id` | Scaffold ID for the heterogametic sex chromosome (Y or W)      |
+| `--output_dir`       | Output directory                                               |
+
+
+### Optional options
+
+
+| Option              | Description                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| `-h, --help`        | Show the help message and exit                                                       |
+| `--ZW`              | Use the ZW sex determination system (default: XY)                                    |
+| `--threshold`       | Posterior probability threshold for a confident call (default: `0.95`)               |
+| `--mismapping_rate` | Expected mismapping rate for reads on zero-ploidy chromosomes (default: `1e-4`)      |
+| `--metadata`        | Path to a metadata file to annotate with the predicted sex                           |
+| `--id_column`       | Sample ID column name in the metadata file (required when `--metadata` is specified) |
+| `--log`             | Write a log file to the output directory                                             |
+
+
 ## Required input files
 
 ### `scaffolds.txt`
-Since most assemblies include scaffolds representing other DNA than simply genomic (ex. mitochondrial), it is necessary to define what scaffolds we are interested in using for our analysis. This can be specified with a ```scaffolds.txt``` file. This is a single-column text file where each row is a scaffold ID. Here is an example, 
+
+Since most assemblies include scaffolds representing other DNA than simply genomic (ex. mitochondrial), it is necessary to define what scaffolds we are interested in using for our analysis. This can be specified with a `scaffolds.txt` file. This is a single-column text file where each row is a scaffold ID. Here is an example, 
+
 ```
 NC_000001.11
 NC_000002.12
@@ -95,9 +102,10 @@ NC_000006.12
 NC_000007.14
 NC_000008.11
 ...
-``` 
+```
 
 ### `.idxstats files`
+
 A .idxstats file can easily be created with samtools. If you have a .bam file of interest, fun the following commands to generate the .idxstats file:
 
 ```shell
@@ -109,9 +117,11 @@ samtools idxstats <bam_file> > <prefix>.idxstats
 ```
 
 ### `metadata_file.txt`
+
 A metadata file is required to run SCiMS. This file should contain at least one columns, `sample-id`. The `sample-id` column should contain the sample IDs that are present in the .idxstats file. 
 
 Example:
+
 ```
 sample-id	feature
 sample1		A
@@ -122,75 +132,207 @@ sample4		D
 ```
 
 ## Example run
-Example files can be found in the ```test_data``` folder.
 
-### Running SCiMS on a single sample
-Change path to the ```test_data``` folder and run the following command:
-```
-scims --idxstats_file ./idxstats_files/S79F300.idxstats \
-      --scaffolds GRCh38_scaffolds.txt \
-      --system XY \
-      --homogametic_id NC_000023.11 \
-      --heterogametic_id NC_000024.10 \
-      --output test_output.txt
-```
+Example files can be found in the `test_data` folder.
 
-Output log:
-```
-2025-03-06 00:22:34,576 - INFO - Log file created at: out/scims.log
-2025-03-06 00:22:34,576 - INFO -  
-=================================================
-2025-03-06 00:22:34,576 - INFO - 
-    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
-    _|      _|         _|    _|_|  _|_|   _|        
-    _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
-        _|  _|         _|    _|      _|       _|  
-    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
-    =================================================
-2025-03-06 00:22:34,576 - INFO - SCiMS: Sex Calling in Metagenomic Sequencing
-2025-03-06 00:22:34,576 - INFO - Version: 1.0.0
-2025-03-06 00:22:34,576 - INFO - =================================================
-2025-03-06 00:22:34,591 - INFO - Results written to out/S79F300_results.txt
-```
-Output file:
-```
-$ cat out/S79F300_results.txt
-```
+### Single sample (from `.idxstats`)
 
-### Running SCiMS on multiple samples
+Change path to the `test_data` folder and run the following command:
 
 ```
-scims   --idxstats_folder idxstats_files/  \
-        --scaffolds GRCh38_scaffolds.txt \
-        --homogametic_id NC_000023.11 \
-        --heterogametic_id NC_000024.10 \
-        --output_dir out \
-        --metadata metadata_file.txt \
-        --id_column sample-id \
-        --log log.txt
+scims call \
+    --idxstats_file ./idxstats_files/S79F300.idxstats \
+    --scaffolds GRCh38_scaffolds.txt \
+    --homogametic_id NC_000023.11 \
+    --heterogametic_id NC_000024.10 \
+    --output_dir out
 ```
 
-Output log:
+### Single sample (directly from BAM)
+
 ```
-2025-03-06 00:29:09,830 - INFO - Log file created at: out/scims.log
-2025-03-06 00:29:09,830 - INFO -  
-=================================================
-2025-03-06 00:29:09,830 - INFO - 
-    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|  
-    _|      _|         _|    _|_|  _|_|   _|        
-    _|_|_|  _|         _|    _|  _|  _|   _|_|_|    
-        _|  _|         _|    _|      _|       _|  
-    _|_|_|   _|_|_|  _|_|_|  _|      _|   _|_|_|    
-    =================================================
-2025-03-06 00:29:09,830 - INFO - SCiMS: Sex Calling in Metagenomic Sequencing
-2025-03-06 00:29:09,830 - INFO - Version: 1.0.0
-2025-03-06 00:29:09,830 - INFO - =================================================
-2025-03-06 00:29:09,845 - INFO - Results written to out/S28M1000000_results.txt
-2025-03-06 00:29:09,846 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
-2025-03-06 00:29:09,848 - INFO - Results written to out/S56F150_results.txt
-2025-03-06 00:29:09,849 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
-2025-03-06 00:29:09,851 - INFO - Results written to out/S79F300_results.txt
-2025-03-06 00:29:09,852 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
-2025-03-06 00:29:09,854 - INFO - Results written to out/S90M250_results.txt
-2025-03-06 00:29:09,855 - INFO - Updated metadata with classification results written to out/metadata_with_classification.txt
+scims call \
+    --bam ./example.bam \
+    --scaffolds GRCh38_scaffolds.txt \
+    --homogametic_id NC_000023.11 \
+    --heterogametic_id NC_000024.10 \
+    --output_dir out
 ```
+
+### Multiple samples (batch mode)
+
+```
+scims call \
+    --idxstats_folder idxstats_files/ \
+    --scaffolds GRCh38_scaffolds.txt \
+    --homogametic_id NC_000023.11 \
+    --heterogametic_id NC_000024.10 \
+    --output_dir out \
+    --metadata metadata_file.txt \
+    --id_column sample-id \
+    --log
+```
+
+For a species with a ZW system (e.g. birds), add `--ZW` and supply the Z and W scaffold IDs:
+
+```
+scims call \
+    --BAM sample.bam \
+    --scaffolds scaffolds.txt \
+    --homogametic_id <Z_chrom_id> \
+    --heterogametic_id <W_chrom_id> \
+    --ZW \
+    --output_dir out
+```
+
+## Output
+
+SCiMS writes a results file per sample containing the inferred sex and the associated statistics from the likelihood ratio test (e.g. the posterior probability and likelihood ratio supporting the call). When a metadata file is supplied, an annotated copy is written with the predicted sex added as a column.
+
+# Example pipeline: from raw reads to SCiMS
+
+This example demonstrates a complete workflow for inferring host chromosomal sex from raw metagenomic sequencing reads, starting from paired-end FASTQ files and ending with a SCiMS classification. The example uses the human reference genome (GRCh38) with RefSeq scaffold identifiers; for other organisms, substitute the appropriate reference genome and sex-chromosome scaffold IDs.
+
+```
+![Workflow
+```
+
+## Software
+
+The example uses the following tools (other equivalent tools may be substituted):
+
+- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) — raw read quality assessment
+- [fastp](https://github.com/OpenGene/fastp) — adapter and quality trimming
+- [Bowtie 2](https://github.com/BenLangmead/bowtie2) — read alignment
+- [SAMtools](https://www.htslib.org/) — alignment processing and `idxstats` generation
+- [SCiMS](https://github.com/davenport-lab/SCiMS) — sex classification
+
+## Input files
+
+- `sample_R1.fastq.gz`, `sample_R2.fastq.gz` — raw paired-end metagenomic reads
+- `GRCh38.fasta` — host reference genome (FASTA)
+- `GRCh38_scaffolds.txt` — list of host scaffolds to use (see below)
+
+## Step 1 — Quality control of raw reads
+
+Assess the quality of the raw reads before processing:
+
+```
+fastqc sample_R1.fastq.gz sample_R2.fastq.gz -o fastqc_raw/
+```
+
+Inspect the reports to identify adapter contamination and any quality drop-off that should inform the trimming parameters.
+
+## Step 2 — Adapter and quality trimming
+
+Trim adapters and low-quality bases with fastp:
+
+```
+fastp \
+    -i sample_R1.fastq.gz \
+    -I sample_R2.fastq.gz \
+    -o sample_R1.trimmed.fastq.gz \
+    -O sample_R2.trimmed.fastq.gz \
+    --detect_adapter_for_pe \
+    --qualified_quality_phred 20 \
+    --length_required 50 \
+    --thread 8 \
+    --json sample.fastp.json \
+    --html sample.fastp.html
+```
+
+This removes adapters, discards reads with low quality scores, and drops reads shorter than 50 bp after trimming. Adjust thresholds to suit your data.
+
+## Step 3 — Align metagenomic reads to the host reference
+
+Build the Bowtie 2 index from the host reference genome once (this can be reused across all samples):
+
+```
+bowtie2-build --threads 8 GRCh38.fasta GRCh38_index
+```
+
+Align the trimmed reads to the host reference and convert directly to BAM:
+
+```
+bowtie2 -x GRCh38_index \
+    -1 sample_R1.trimmed.fastq.gz \
+    -2 sample_R2.trimmed.fastq.gz \
+    -p 8 \
+    | samtools view -bS - > sample.bam
+```
+
+## Step 4 — Sort and index the alignment
+
+```
+samtools sort -@ 8 -o sample.sorted.bam sample.bam
+samtools index sample.sorted.bam
+```
+
+## Step 5 — Generate mapping statistics
+
+`samtools idxstats` reports the number of mapped reads per scaffold, which is the input SCiMS uses:
+
+```
+samtools idxstats sample.sorted.bam > sample.idxstats
+```
+
+> SCiMS can also take a sorted, indexed BAM file directly with `--bam`, in which case it generates the `idxstats` internally and Step 5 can be skipped. The explicit `idxstats` step is shown here to make the pipeline transparent.
+
+## Step 6 — Define the scaffolds of interest
+
+SCiMS requires a `scaffolds.txt` file listing the host scaffolds to include (typically the nuclear autosomes plus the two sex chromosomes, excluding mitochondrial and unplaced contigs). For GRCh38 with RefSeq identifiers:
+
+```
+NC_000001.11
+NC_000002.12
+NC_000003.12
+...
+NC_000022.11
+NC_000023.11   # X chromosome (homogametic)
+NC_000024.10   # Y chromosome (heterogametic)
+```
+
+The scaffold IDs in this file, in the `.idxstats` file, and in the `--homogametic_id` / `--heterogametic_id` arguments must all match the names used in the reference genome.
+
+## Step 7 — Run SCiMS
+
+Classify the sample from the `.idxstats` file:
+
+```
+scims call \
+    --idxstats_file sample.idxstats \
+    --scaffolds GRCh38_scaffolds.txt \
+    --homogametic_id NC_000023.11 \
+    --heterogametic_id NC_000024.10 \
+    --output_dir scims_out
+```
+
+Equivalently, starting directly from the sorted, indexed BAM file (skipping Step 5):
+
+```
+scims call \
+    --bam sample.sorted.bam \
+    --scaffolds GRCh38_scaffolds.txt \
+    --homogametic_id NC_000023.11 \
+    --heterogametic_id NC_000024.10 \
+    --output_dir scims_out
+```
+
+The XY system is assumed by default; for a ZW organism, add `--ZW` and provide the Z and W scaffold IDs as the homogametic and heterogametic IDs, respectively.
+
+## Processing many samples at once
+
+For a study with many samples, generate one `.idxstats` file per sample (Steps 1–5), place them in a single directory, and run SCiMS in batch mode with a metadata file:
+
+```
+scims call \
+    --idxstats_folder idxstats_files/ \
+    --scaffolds GRCh38_scaffolds.txt \
+    --homogametic_id NC_000023.11 \
+    --heterogametic_id NC_000024.10 \
+    --output_dir scims_out \
+    --metadata metadata_file.txt \
+    --id_column sample-id \
+    --log
+```
+

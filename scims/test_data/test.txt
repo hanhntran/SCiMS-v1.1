@@ -1,0 +1,5 @@
+sample-id	actual_sex	SCiMS_sex	SCiMS_reads_mapped	SCiMS_reads_mapped_to_X	SCiMS_reads_mapped_to_Y	SCiMS_male_post_prob	SCiMS_female_post_prob
+S28M1000000	male	male	1563190	38420	5464	1.0	0.0
+S56F150	female	female	238	12	0	0.009	0.991
+S79F300	female	female	466	20	0	0.009	0.991
+S90M250	male	uncertain	379	11	0	0.076	0.924
