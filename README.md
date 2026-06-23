@@ -35,6 +35,33 @@ To confirm that the instillation was successful, run:
 scims call -h
 ```
 
+## Important Limitations and Usage Considerations
+
+Before using SCiMS, please be aware of the following limitations and considerations:
+
+### Intended Use
+
+* **SCiMS should be run on raw sequencing data prior to host read removal.** Host-filtering procedures can distort chromosome representation and may bias sex inference. SCiMS is not intended for use on host-filtered datasets, including many publicly available human metagenomic datasets.
+
+* **SCiMS infers chromosomal sex, not gender identity.** SCiMS is designed to infer the chromosomal sex (e.g., XX/XY or ZW/ZZ) of organisms with heterogametic sex chromosome systems. Gender identity cannot be inferred from genomic data and is not a feature of this tool.
+
+* **SCiMS is currently designed for XY and ZW sex determination systems.** Performance has not been validated for organisms with other sex determination mechanisms, including environmental, polygenic, or other non-chromosomal systems.
+
+* **SCiMS may be unreliable for individuals with atypical sex chromosome complements.** This includes individuals with sex chromosome aneuploidies (e.g., XXY, XYY, or X) or other sex-related biological characteristics that do not align with binary sex chromosome models.
+
+* **Very low host DNA content may result in inconclusive calls.** While SCiMS performs well at low host read depths, reliable inference still requires sufficient reads mapping to host sex chromosomes.
+
+* **Performance may be reduced in highly microbe-rich samples.** In samples with extremely low host DNA content (e.g., some stool metagenomes), a confident call may still be unreliable if too few reads map to the sex chromosomes.
+
+### Ethical Considerations
+
+* **Sex is often considered sensitive personal information.** Researchers should ensure that use of SCiMS is consistent with applicable ethical approvals, informed consent, and institutional policies.
+
+* **Host-derived reads may contain additional sensitive genetic information beyond chromosomal sex.** Such information may include ancestry-related or clinically relevant genetic variation.
+
+* **When working with human-derived data, users should carefully consider privacy implications** and follow best practices for data management, sharing, and deposition.
+
+
 ## Usage
 
 Classification is run through the `scims call` subcommand. It accepts BAM files directly (requires samtools) or pre-computed `.idxstats` files, and works on alignment data from any sequencing platform or aligner.
