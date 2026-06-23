@@ -64,7 +64,7 @@ Before using SCiMS, please be aware of the following limitations and considerati
 
 ## Usage
 
-Classification is run through the `scims call` subcommand. It accepts BAM files directly (requires samtools) or pre-computed `.idxstats` files, and works on alignment data from any sequencing platform or aligner.
+Classification is run through the `scims call` subcommand. It accepts BAM files directly (requires samtools) or pre-computed `.idxstats` files, and works on alignment data from any sequencing platform, aligner, or genome assembly.
 
 ```
 scims call \
