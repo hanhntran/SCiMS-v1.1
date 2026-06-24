@@ -77,11 +77,29 @@ def read_master_file(master_file_path: str) -> list:
     return lines
 
 
-def extract_sample_id(file_path: str) -> str:
+# Longest first, so compound suffixes match before their components.
+_KNOWN_SUFFIXES = (
+    ".idxstats.gz",
+    ".idxstats.txt",
+    ".idxstats",
+    ".bam",
+    ".sam",
+)
+
+
+def extract_sample_id(filename: str) -> str:
     """
-    Returns the base filename (minus extension) as the sample ID.
-    Example: 'my_sample_001.idxstats' -> 'my_sample_001'
+    Derive a sample ID by stripping a known input extension, preserving any
+    '.' characters that are part of the sample name itself.
+
+    'E_S89M150_hf0.01.idxstats'  -> 'E_S89M150_hf0.01'
+    'E_S89M150_hf0.01.bam'       -> 'E_S89M150_hf0.01'
+    'foo.bar.idxstats.gz'        -> 'foo.bar'
+    'weird.name_v2.3.cram'       -> 'weird.name_v2.3'
     """
-    base_name = os.path.basename(file_path)      # e.g. 'my_sample_001.idxstats'
-    root, ext = os.path.splitext(base_name)      # ('my_sample_001', '.idxstats')
-    return root
+    name = os.path.basename(filename)
+    lowered = name.lower()
+    for suffix in _KNOWN_SUFFIXES:
+        if lowered.endswith(suffix):
+            return name[: -len(suffix)]
+    return os.path.splitext(name)[0]
