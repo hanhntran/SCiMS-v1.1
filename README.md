@@ -1,5 +1,8 @@
 # Sex Calling in Metagenomic Sequences
 
+<p align="center"><img src="static/scims_logo.png" alt="SCiMS logo" width="300"></p>
+
+
 A tool for inferring the chromosomal sex of a host organism from the alignment statistics of metagenomic sequencing data.   
 
 [Report Bug](https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=bug&template=bug-report---.md) · [Request Feature](https://github.com/hanhntran/SCiMS-v1.1/issues/new?labels=enhancement&template=feature-request---.md)
@@ -41,26 +44,18 @@ Before using SCiMS, please be aware of the following limitations and considerati
 
 ### Intended Use
 
-* **SCiMS should be run on raw sequencing data prior to host read removal.** Host-filtering procedures can distort chromosome representation and may bias sex inference. SCiMS is not intended for use on host-filtered datasets, including many publicly available human metagenomic datasets.
-
-* **SCiMS infers chromosomal sex, not gender identity.** SCiMS is designed to infer the chromosomal sex (e.g., XX/XY or ZW/ZZ) of organisms with heterogametic sex chromosome systems. Gender identity cannot be inferred from genomic data and is not a feature of this tool.
-
-* **SCiMS is currently designed for XY and ZW sex determination systems.** Performance has not been validated for organisms with other sex determination mechanisms, including environmental, polygenic, or other non-chromosomal systems.
-
-* **SCiMS may be unreliable for individuals with atypical sex chromosome complements.** This includes individuals with sex chromosome aneuploidies (e.g., XXY, XYY, or X) or other sex-related biological characteristics that do not align with binary sex chromosome models.
-
-* **Very low host DNA content may result in inconclusive calls.** While SCiMS performs well at low host read depths, reliable inference still requires sufficient reads mapping to host sex chromosomes.
-
-* **Performance may be reduced in highly microbe-rich samples.** In samples with extremely low host DNA content (e.g., some stool metagenomes), a confident call may still be unreliable if too few reads map to the sex chromosomes.
+- **SCiMS should be run on raw sequencing data prior to host read removal.** Host-filtering procedures can distort chromosome representation and may bias sex inference. SCiMS is not intended for use on host-filtered datasets, including many publicly available human metagenomic datasets.
+- **SCiMS infers chromosomal sex, not gender identity.** SCiMS is designed to infer the chromosomal sex (e.g., XX/XY or ZW/ZZ) of organisms with heterogametic sex chromosome systems. Gender identity cannot be inferred from genomic data and is not a feature of this tool.
+- **SCiMS is currently designed for XY and ZW sex determination systems.** Performance has not been validated for organisms with other sex determination mechanisms, including environmental, polygenic, or other non-chromosomal systems.
+- **SCiMS may be unreliable for individuals with atypical sex chromosome complements.** This includes individuals with sex chromosome aneuploidies (e.g., XXY, XYY, or X) or other sex-related biological characteristics that do not align with binary sex chromosome models.
+- **Very low host DNA content may result in inconclusive calls.** While SCiMS performs well at low host read depths, reliable inference still requires sufficient reads mapping to host sex chromosomes.
+- **Performance may be reduced in highly microbe-rich samples.** In samples with extremely low host DNA content (e.g., some stool metagenomes), a confident call may still be unreliable if too few reads map to the sex chromosomes.
 
 ### Ethical Considerations
 
-* **Sex is often considered sensitive personal information.** Researchers should ensure that use of SCiMS is consistent with applicable ethical approvals, informed consent, and institutional policies.
-
-* **Host-derived reads may contain additional sensitive genetic information beyond chromosomal sex.** Such information may include ancestry-related or clinically relevant genetic variation.
-
-* **When working with human-derived data, users should carefully consider privacy implications** and follow best practices for data management, sharing, and deposition.
-
+- **Sex is often considered sensitive personal information.** Researchers should ensure that use of SCiMS is consistent with applicable ethical approvals, informed consent, and institutional policies.
+- **Host-derived reads may contain additional sensitive genetic information beyond chromosomal sex.** Such information may include ancestry-related or clinically relevant genetic variation.
+- **When working with human-derived data, users should carefully consider privacy implications** and follow best practices for data management, sharing, and deposition.
 
 ## Usage
 
@@ -220,9 +215,8 @@ SCiMS writes a results file per sample containing the inferred sex and the assoc
 
 This example demonstrates a complete workflow for inferring host chromosomal sex from raw metagenomic sequencing reads, starting from paired-end FASTQ files and ending with a SCiMS classification. The example uses the human reference genome (GRCh38) with RefSeq scaffold identifiers; for other organisms, substitute the appropriate reference genome and sex-chromosome scaffold IDs.
 
-```
-![Workflow
-```
+
+![Workflow](static/fig1_workflow.svg)
 
 ## Software
 
