@@ -1,6 +1,6 @@
 # Sex Calling in Metagenomic Sequences
 
-
+<p align="center"><img src="static/scims_logo.png" alt="SCiMS logo" width="400"></p>
 
 A tool for inferring the chromosomal sex of a host organism from the alignment statistics of metagenomic sequencing data.   
 
