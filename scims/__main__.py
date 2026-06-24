@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from ._version import __version__
-from .utils import read_metadata, find_sample_id_column
+from .utils import read_metadata, find_sample_id_column, extract_sample_id
 from .process_input_file import process_input_file
 
 # ---------------------------------------------------------------------------
@@ -235,7 +235,7 @@ def run_call(args):
             "SCiMS_male_post_prob": result.get("SCiMS_male_post_prob"),
             "SCiMS_female_post_prob": result.get("SCiMS_female_post_prob"),
         }
-        base_name = os.path.basename(input_file).split(".")[0]
+        base_name = extract_sample_id(os.path.basename(input_file))
         output_file = os.path.join(args.output_dir, f"{base_name}_results.txt")
         pd.DataFrame([out_dict]).to_csv(output_file, sep="\t", index=False)
         logger.info(f"Results written to {output_file}")
