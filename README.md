@@ -1,6 +1,5 @@
 # Sex Calling in Metagenomic Sequences
 
-<p align="center"><img src="static/scims_logo.png" alt="SCiMS logo" width="300"></p>
 
 
 A tool for inferring the chromosomal sex of a host organism from the alignment statistics of metagenomic sequencing data.   
@@ -215,8 +214,7 @@ SCiMS writes a results file per sample containing the inferred sex and the assoc
 
 This example demonstrates a complete workflow for inferring host chromosomal sex from raw metagenomic sequencing reads, starting from paired-end FASTQ files and ending with a SCiMS classification. The example uses the human reference genome (GRCh38) with RefSeq scaffold identifiers; for other organisms, substitute the appropriate reference genome and sex-chromosome scaffold IDs.
 
-
-![Workflow](static/fig1_workflow.svg)
+![Workflow](static/fig1_workflow.png)
 
 ## Software
 
@@ -356,4 +354,3 @@ scims call \
     --id_column sample-id \
     --log
 ```
-
